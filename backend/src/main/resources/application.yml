@@ -1,0 +1,124 @@
+server:
+  port: 8080
+  tomcat:
+    connection-timeout: 300000
+    keep-alive-timeout: 300000
+    max-http-form-post-size: 50MB
+  servlet:
+    session:
+      timeout: 30m
+
+spring:
+  # 文件静态访问：x-file-storage 本地存储的文件通过 /files/** 直接访问
+  mvc:
+    static-path-pattern: /files/**
+    async:
+      request-timeout: 300000
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+  application:
+    name: agent-scope-java2
+  web:
+    resources:
+      static-locations: file:/data/agent-scope/storage/
+
+  # MongoDB配置
+  data:
+    mongodb:
+      uri: mongodb://127.0.0.1:27017/test?authSource=admin&retryWrites=false&readPreference=primaryPreferred
+      auto-index-creation: false
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# AgentScope配置
+agentscope:
+  workspace: ${user.home}/.agentscope/workspace
+  compaction:
+    trigger-messages: 30
+    keep-messages: 10
+
+# Milvus配置
+milvus:
+  enabled: true
+  host: localhost
+  port: 19530
+  collection-prefix: kb_
+  dimension: 512
+
+# Embedding配置（本地ONNX模型）
+embedding:
+  tokenizer-uri: file:/home/software/AI/Xenova/bge-small-zh-v1.5/tokenizer.json
+  onnx-model-uri: file:/home/software/AI/Xenova/bge-small-zh-v1.5/onnx/model.onnx
+  max-sequence-length: 512
+  normalize: true
+
+# GLM模型配置（智谱AI）
+# 使用OpenAI兼容接口，环境变量: GLM_API_KEY、GLM_BASE_URL、GLM_MODEL
+glm:
+  api-key: ${GLM_API_KEY:4aa2c5736fe74af4b7811cb82b111a0f.PQmDGxzrkGkDdEf6}
+  base-url: ${GLM_BASE_URL:https://open.bigmodel.cn/api/paas/v4}
+  model: ${GLM_MODEL:glm-4-flash}
+
+# 文件存储配置
+file:
+  storage:
+    base-path: /data/agent-scope/files
+
+# RAG检索配置
+rag:
+  chunk-size: 500
+  overlap-ratio: 0.15
+  top-k: 3
+  similarity-threshold: 0.5
+  structure-preserve: true
+
+# Application Config
+app:
+  jwt:
+    secret: your-256-bit-secret-key-for-jwt-token-generation
+    expiration: 86400000
+
+  quick-login:
+    enabled: true
+    username: root
+    password: "123456"
+
+  tts:
+    edge-command: edge-tts
+    audio-dir: /data/agent-scope/tts-cache
+    use-offline: false
+
+  # ASR语音识别配置（Vosk离线识别）
+  asr:
+    audio-dir: /data/agent-scope/asr
+    ffmpeg-path: ffmpeg
+
+  # 语音合成记录（文章朗读）
+  tts-record:
+    audio-dir: /data/agent-scope/tts-records
+
+  ocr:
+    auto-on-upload: false
+
+  # 耗时任务事件总线：disruptor（默认） / kafka（预留）
+  events:
+    type: disruptor
+    ring-buffer-size: 1024
+
+# x-file-storage 文件统一存储（本地模式）
+dromara:
+  x-file-storage:
+    default-platform: local-1
+    upload-type:
+    local-plus:
+      - platform: local-1
+        enable-storage: true
+        base-path: ""
+        storage-path: /data/agent-scope/storage/
